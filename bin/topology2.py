@@ -9,7 +9,7 @@ def sort(graph):
 
     InDegree = {node: cnt[node] for node in graph}
     print(InDegree)
- 
+
     # 将所有入度为0的顶点入列
     queue = deque()
     zero_indeg = [node for node in graph if InDegree[node] == 0]
