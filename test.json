@@ -1,1 +1,0 @@
-{"id": 12, "type": "day", "date": "2021-01-12", "hour": 0, "databases": [{"name": "dws", "type": "hive", "tables": [{"name": "b", "suffix": ".hql", "path": "F:\\workspace\\hamster\\warehouse\\hive\\dws\\b.hql", "result": 0}]}, {"name": "ods", "type": "hive", "tables": [{"name": "a", "suffix": ".hql", "path": "F:\\workspace\\hamster\\warehouse\\hive\\ods\\a.hql", "result": 0}]}]}
