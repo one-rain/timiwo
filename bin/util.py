@@ -5,8 +5,8 @@ from collections import Counter
 from collections import deque
 from itertools import chain
 
-# 解析HQL，获取依赖的表名，结果为: database.table
-def parse_hql(file):
+# 解析HQL，获取依赖的表名，结果为: {'database.table', ...}
+def parse_dependents(file):
     tables = set()
     with open(file, 'r', encoding='utf8') as sql_file:
         s = sql_file.read().strip().lower().replace('\n', ' ').replace('\r', ' ').replace('\t', '    ')
@@ -15,7 +15,7 @@ def parse_hql(file):
         for v in parts:
             val = v.strip()
             if flag and not val == '' and not val.startswith('(') and not val.startswith('select ') and not val.startswith('alias_with_'):
-                tables.add(val.replace(')', ''))
+                tables.add(val.replace(')', '').replace(';', ''))
 
             if val == 'from' or val == 'join':
                 flag = True
@@ -29,13 +29,13 @@ def parse_hql(file):
     根据依赖关系，生成dag
     graph结构： {'table1': ['table5', 'table6'], ...}
 '''
-def topology_sort(graph):
+def dag_sort(graph):
     cnt = Counter()
     for val in list(chain.from_iterable(graph.values())):
         cnt[val] += 1
 
     degree = {node: cnt[node] for node in graph}
-    #print(InDegree)
+    #print(degree)
 
     # 将所有入度为0的顶点入列
     queue = deque()
@@ -45,7 +45,7 @@ def topology_sort(graph):
     # 拓扑排序
     top_order = list()
     while len(queue):
-        node = queue.popleft()
+        node = queue.pop()
         top_order.append(node)
         for adj in graph[node]: # 从图中拿走这一点，就是把它的邻接点的入度-1
             degree[adj] -= 1
@@ -58,15 +58,29 @@ def topology_sort(graph):
     else:
         return top_order
 
+'''
+    流向关系数据结构，它是依赖关系数据结构的逆向
+    dependents: 表依赖关系结构，例如：{'table1': ['table5', 'table6'], ...}
+'''
+def dependents_to_dag(dependents):
+    graph = {}
+    for key, val in dependents.items():
+        if len(val) > 0:
+            for v in val:
+                if v not in graph:
+                    graph[v] = [key]
+                else:
+                    graph[v].append(key)
+            graph[key] = []
+        elif key not in graph:
+            graph[key] = []
+    return graph
 
-# 依赖关系数据结构，例如：表a执行脚本中，需要用到 表b 和 表c，关系为{"a": [b, c])
-def dag_dependent():
-    print("")
-
-# 流向关系数据结构，它是依赖关系数据结构的逆向
-def dag_flow_to():
-    print("")
-
+'''
+    根据流向关系图结构，查找从某个节点开始的dag
+'''
+def dag_cut(graph, node):
+    print('')
 
 def test():
     graph = {
@@ -81,9 +95,11 @@ def test():
         'table9': ['table11'],
         'table10': [],
         'table11': [],
-        'table12': []
+        'table12': [],
+        'table13': []
     }
+    #g = {'dws.dws_active': [], 'ads.ads_basis_collect': ['ads.ads_active_month'], 'ads.ads_active_month': [], 'dwd.dwd_store': ['dws.dws_view_product'], 'ods.ods_log_app': ['dwd.dwd_app'], 'dwd.dwd_app': ['dws.dws_active'], 'dwd.dwd_product': ['dws.dws_view_product'], 'dwd.dwd_order': ['dws.dws_user_order'], 'dwd.dwd_user': ['dws.dws_user_order'], 'dws.dws_user_order': [], 'dws.dws_view_product': []}
+    #print(dependents_to_dag(graph))
+    print(dag_sort(graph))
 
-    print(topology_sort(graph))
-
-test()
+#test()

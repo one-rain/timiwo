@@ -14,36 +14,30 @@ import util
 
 dir_root = os.path.abspath('.')
 
-def create_job(id, day):
+def get_databases():
+    dir_db  = ['ads', 'dwd', 'dws', 'ods']
     databases = []
-    databases.append(get_databases_hive('dws'))
-    databases.append(get_databases_hive('ods'))
-
-    job = {'id': id, 'type': 'day', 'date': day, 'result': 0, 'databases': databases}
-
-    with open(dir_root + '/jobs/' + id + '.json', 'w', encoding='utf-8') as f:
-        json.dump(job, f, indent=2, sort_keys=True, ensure_ascii=False)
-    
-    return job
+    for db in dir_db:
+        databases.append(get_databases_hive(db))
+    return databases
 
 def get_databases_hive(name):
-    t1 = get_tables(dir_root + "/warehouse/hive/" + name, ".hql")
+    t1 = get_tables(dir_root + "/warehouse/hive/" + name, ".hql", [])
     return {'name': name, 'type': 'hive', 'tables': t1}
 
-def get_tables(p, suffixs):
-    tables = []
+def get_tables(p, suffixs, tables):
     items = os.listdir(p)
     sep = os.path.sep
     for item in items:
         obj = os.path.join(p, item)
         if os.path.isdir(obj):
-            get_tables(obj, suffixs)
+            get_tables(obj, suffixs, tables)
         elif os.path.isfile(obj):
             f = os.path.splitext(obj)
             name = f[0].split(sep)[-1]
             suffix = f[-1]
             if suffix in suffixs:
-                table = {'name': name, 'suffix': suffix, 'path': obj, 'result': 0, 'start_time': int(time.time() * 1000), 'end_time': 0}
+                table = {'name': name, 'suffix': suffix, 'path': obj, 'result': 0, 'start_time': 0, 'end_time': 0}
                 tables.append(table)
         else:
             print("%s is not dir or file." % obj)
@@ -77,38 +71,49 @@ def update_result(job_id, database, table, result):
 
 
 '''
-    1、生成任务json
-    2、解析json中的hql文件，获取表依赖关系
-    3、生成表依赖关系
+    解析hql文件，获取表依赖关系
 '''
-def create_dependent():
-    now_time = time.strftime('%Y%m%d%H%M%S', time.localtime())
-    job_id = "default_" + now_time
-    print(job_id)
-    #job = create_job(job_id, '2021-02-23')
-
-    job_id = 'default_20210224141503'
-    job = read_job(job_id)
-    #print(job)
-
-    db = job['databases']
+def get_dependents(databases):
     dependents = {}
-    for d in db:
-        if d['type'] == 'hive':
-            for t in d['tables']:
-                table = d['name'] + "." + t['name']
-                print(table)
-                deps = util.parse_hql(t['path'])
-                dependents[table] = []
-                for dt in deps:
-                    print(dt)
-                    if dt != table and dt != t['name']:
-                        dependents[table].append(dt)
-                
+    for db in databases:
+        dependents.update(get_table_dependents(db))
+
     return dependents
 
-create_dependent()
+def get_table_dependents(db):
+    dependents = {}
+    db_name = db['name']
+    if db['type'] != 'hive':
+        print("%s is not hive database." %(db_name))
+        return None
+    
+    for tb in db['tables']:
+        tb_name = db_name + "." + tb['name']
+        dependents[tb_name] = []
+        for dep in util.parse_dependents(tb['path']):
+            if dep != tb_name and dep != tb['name']:
+                dependents[tb_name].append(dep)
+    return dependents
 
+def create_job(tag):
+    now_time = time.strftime('%Y%m%d%H%M%S', time.localtime())
+    job_id = tag + "_" + now_time
+    day = '2021-02-25'
+
+    databases = get_databases()
+    dependents = get_dependents(databases)
+    dag = util.dependents_to_dag(dependents)
+    flow = util.dag_sort(dag)
+    job = {'id': job_id, 'type': 'day', 'date': day, 'result': 0, 'databases': databases, "dag": flow}
+    with open(dir_root + '/jobs/' + job_id + '.json', 'w', encoding='utf-8') as f:
+        json.dump(job, f, indent=2, sort_keys=True, ensure_ascii=False)
+    
+    return job_id
+
+
+#print(get_tables('/Users/wangr/Documents/workspace/github/timiwo/warehouse/hive/dws', '.hql', []))
+
+print(create_job('default'))
 
 #update_result('a', 'dws', 'c', 1)
 
