@@ -1,0 +1,83 @@
+{
+  "databases": [
+    {
+      "name": "ads", 
+      "tables": [
+        {
+          "name": "ads_basis_collect", 
+          "path": "/Users/wangr/Documents/workspace/github/timiwo/warehouse/hive/ads/ads_basis_collect.hql", 
+          "suffix": ".hql"
+        }, 
+        {
+          "name": "ads_active_month", 
+          "path": "/Users/wangr/Documents/workspace/github/timiwo/warehouse/hive/ads/active/ads_active_month.hql", 
+          "suffix": ".hql"
+        }
+      ], 
+      "type": "hive"
+    }, 
+    {
+      "name": "dwd", 
+      "tables": [
+        {
+          "name": "dwd_store", 
+          "path": "/Users/wangr/Documents/workspace/github/timiwo/warehouse/hive/dwd/dwd_store.hql", 
+          "suffix": ".hql"
+        }, 
+        {
+          "name": "dwd_app", 
+          "path": "/Users/wangr/Documents/workspace/github/timiwo/warehouse/hive/dwd/app/dwd_app.hql", 
+          "suffix": ".hql"
+        }, 
+        {
+          "name": "dwd_product", 
+          "path": "/Users/wangr/Documents/workspace/github/timiwo/warehouse/hive/dwd/dwd_product.hql", 
+          "suffix": ".hql"
+        }, 
+        {
+          "name": "dwd_order", 
+          "path": "/Users/wangr/Documents/workspace/github/timiwo/warehouse/hive/dwd/user/dwd_order.hql", 
+          "suffix": ".hql"
+        }, 
+        {
+          "name": "dwd_user", 
+          "path": "/Users/wangr/Documents/workspace/github/timiwo/warehouse/hive/dwd/user/dwd_user.hql", 
+          "suffix": ".hql"
+        }
+      ], 
+      "type": "hive"
+    }, 
+    {
+      "name": "dws", 
+      "tables": [
+        {
+          "name": "dws_user_order", 
+          "path": "/Users/wangr/Documents/workspace/github/timiwo/warehouse/hive/dws/order/dws_user_order.hql", 
+          "suffix": ".hql"
+        }, 
+        {
+          "name": "dws_active", 
+          "path": "/Users/wangr/Documents/workspace/github/timiwo/warehouse/hive/dws/dws_active.hql", 
+          "suffix": ".hql"
+        }, 
+        {
+          "name": "dws_view_product", 
+          "path": "/Users/wangr/Documents/workspace/github/timiwo/warehouse/hive/dws/view/dws_view_product.hql", 
+          "suffix": ".hql"
+        }
+      ], 
+      "type": "hive"
+    }, 
+    {
+      "name": "ods", 
+      "tables": [
+        {
+          "name": "ods_log_app", 
+          "path": "/Users/wangr/Documents/workspace/github/timiwo/warehouse/hive/ods/ods_log_app.hql", 
+          "suffix": ".hql"
+        }
+      ], 
+      "type": "hive"
+    }
+  ]
+}

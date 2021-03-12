@@ -1,0 +1,57 @@
+{
+  "dag": {
+    "ads.ads_active_month": [], 
+    "ads.ads_basis_collect": [], 
+    "dwd.dwd_app": [
+      "dws.dws_active"
+    ], 
+    "dwd.dwd_order": [
+      "dws.dws_user_order"
+    ], 
+    "dwd.dwd_product": [
+      "dws.dws_view_product"
+    ], 
+    "dwd.dwd_store": [
+      "dws.dws_view_product"
+    ], 
+    "dwd.dwd_user": [
+      "dws.dws_user_order"
+    ], 
+    "dws.dws_active": [
+      "ads.ads_basis_collect"
+    ], 
+    "dws.dws_user_order": [], 
+    "dws.dws_view_product": [], 
+    "ods.ods_log_app": [
+      "dwd.dwd_app"
+    ]
+  }, 
+  "dependent": {
+    "ads.ads_active_month": [
+      "ads.ads_basis_collect"
+    ], 
+    "ads.ads_basis_collect": [
+      "dws.dws_active"
+    ], 
+    "dwd.dwd_app": [
+      "ods.ods_log_app"
+    ], 
+    "dwd.dwd_order": [], 
+    "dwd.dwd_product": [], 
+    "dwd.dwd_store": [], 
+    "dwd.dwd_user": [], 
+    "dws.dws_active": [
+      "dwd.dwd_app"
+    ], 
+    "dws.dws_user_order": [
+      "dwd.dwd_order", 
+      "dwd.dwd_user"
+    ], 
+    "dws.dws_view_product": [
+      "dwd.dwd_product", 
+      "dwd.dwd_store"
+    ], 
+    "ods.ods_log_app": []
+  }, 
+  "job_id": "20210226190738_daily"
+}

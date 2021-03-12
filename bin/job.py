@@ -1,18 +1,18 @@
-
-# job.py
+#!/usr/bin/python3
 # coding: utf-8
 # author: wangrun
+
+import os
+import sys
+import json
+import time
+import util
 
 '''
     解析数据仓库下的所有文件，生成任务json
 '''
 
-import os
-import json
-import time
-import util
-
-dir_root = os.path.abspath('.')
+dir_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 def get_databases():
     dir_db  = ['ads', 'dwd', 'dws', 'ods']
@@ -37,7 +37,7 @@ def get_tables(p, suffixs, tables):
             name = f[0].split(sep)[-1]
             suffix = f[-1]
             if suffix in suffixs:
-                table = {'name': name, 'suffix': suffix, 'path': obj, 'result': 0, 'start_time': 0, 'end_time': 0}
+                table = {'name': name, 'suffix': suffix, 'path': obj}
                 tables.append(table)
         else:
             print("%s is not dir or file." % obj)
@@ -69,7 +69,6 @@ def update_result(job_id, database, table, result):
     if code == 0:
         print("update result failed. not found table %s in database %s." %(table, database))
 
-
 '''
     解析hql文件，获取表依赖关系
 '''
@@ -97,30 +96,38 @@ def get_table_dependents(db):
 
 def create_job(tag):
     now_time = time.strftime('%Y%m%d%H%M%S', time.localtime())
-    job_id = tag + "_" + now_time
+    job_id = now_time + '_' + tag
+    dag_id = job_id + '_dag'
+    task_id = job_id + '_task'
     day = '2021-02-25'
 
     databases = get_databases()
     dependents = get_dependents(databases)
     dag = util.dependents_to_dag(dependents)
     flow = util.dag_sort(dag)
-    job = {'id': job_id, 'type': 'day', 'date': day, 'result': 0, 'databases': databases, "dag": flow}
-    with open(dir_root + '/jobs/' + job_id + '.json', 'w', encoding='utf-8') as f:
-        json.dump(job, f, indent=2, sort_keys=True, ensure_ascii=False)
+    task_info = []
+    for node in flow:
+        task_info.append({'table': node, 'status': 0, 'start_time': 0, 'end_time': 0})
+
+    tables = {'databases': databases}
+    dag = {'job_id': job_id, 'dependent': dependents, 'dag': dag}
+    task = {'job_id': job_id, 'status': 0, 'start_time': 0, 'end_time': 0, 'date': day, 'type': 'day', 'task': task_info}
+
+    with open(dir_root + '/config/tables.json', 'w') as f:
+        json.dump(tables, f, indent = 2, sort_keys = True, ensure_ascii = False)
+
+    with open(dir_root + '/config/' + dag_id + '.json', 'w') as f:
+        json.dump(dag, f, indent = 2, sort_keys = True, ensure_ascii = False)
+
+    with open(dir_root + '/config/' + task_id + '.json', 'w') as f:
+        json.dump(task, f, indent = 2, sort_keys = True, ensure_ascii = False)
     
     return job_id
 
 
-#print(get_tables('/Users/wangr/Documents/workspace/github/timiwo/warehouse/hive/dws', '.hql', []))
-
-print(create_job('default'))
-
-#update_result('a', 'dws', 'c', 1)
-
-
-#with open('test.json', 'w') as f:
-#    f.write(s)
-
-#with open('test.json', 'r') as f:
-#    d = f.read()
-#    print(json.loads(d))
+if __name__ == '__main__':
+    if len(sys.argv) > 1:
+        args = sys.argv
+        create_job(args[1])
+    else:
+        create_job('daily')
